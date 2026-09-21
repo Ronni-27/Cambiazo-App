@@ -54,6 +54,7 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.7") //viewModel() desde Jetpack Compose
     implementation("androidx.navigation:navigation-compose:2.8.9")//
     implementation("androidx.compose.material:material-icons-extended")//Usaremos los íconos de Material
+    implementation("com.google.android.gms:play-services-auth:21.4.0")//librería que permitirá iniciar sesión con Google
     testImplementation(libs.junit)
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)

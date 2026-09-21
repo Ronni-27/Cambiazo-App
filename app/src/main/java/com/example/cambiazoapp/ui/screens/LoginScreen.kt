@@ -26,6 +26,12 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.cambiazoapp.viewmodel.UsuarioViewModel
+import androidx.compose.material3.AlertDialog
+import android.app.Activity
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.ui.platform.LocalContext
+import com.google.android.gms.auth.api.signin.GoogleSignIn
 
 @Composable
 fun LoginScreen(
@@ -46,12 +52,102 @@ fun LoginScreen(
         mutableStateOf(false)
     }
 
+    val contexto = LocalContext.current
+
+    val lanzadorGoogle =
+        rememberLauncherForActivityResult(
+            contract = ActivityResultContracts.StartActivityForResult()
+        ) { resultado ->
+
+            if (resultado.resultCode == Activity.RESULT_OK) {
+
+                val tarea =
+                    GoogleSignIn.getSignedInAccountFromIntent(
+                        resultado.data
+                    )
+
+                try {
+
+                    val cuenta = tarea.getResult(
+                        com.google.android.gms.common.api.ApiException::class.java
+                    )
+
+                    val idToken = cuenta.idToken
+
+                    if (idToken != null) {
+                        viewModel.iniciarSesionConGoogle(idToken)
+                    }
+
+                } catch (e: Exception) {
+
+                    // Error al seleccionar la cuenta de Google
+                }
+            }
+        }
+
     val cargando by viewModel.cargando.collectAsState()
     val mensaje by viewModel.mensaje.collectAsState()
     val usuarioAutenticado by viewModel.usuarioAutenticado.collectAsState()
 
     if (usuarioAutenticado) {
         onLoginCorrecto()
+    }
+
+    if (mostrarRecuperacion) {
+
+        AlertDialog(
+            onDismissRequest = {
+                mostrarRecuperacion = false
+            },
+            title = {
+                Text("Recuperar contraseña")
+            },
+            text = {
+                Column {
+
+                    Text(
+                        text = "Ingresa tu correo y te enviaremos un enlace para restablecer tu contraseña."
+                    )
+
+                    Spacer(
+                        modifier = Modifier.height(12.dp)
+                    )
+
+                    OutlinedTextField(
+                        value = correo,
+                        onValueChange = {
+                            correo = it
+                        },
+                        label = {
+                            Text("Correo electrónico")
+                        },
+                        singleLine = true,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        if (correo.isNotBlank()) {
+                            viewModel.recuperarContraseña(correo)
+                            mostrarRecuperacion = false
+                        }
+                    }
+                ) {
+                    Text("Enviar")
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = {
+                        mostrarRecuperacion = false
+                    }
+                ) {
+                    Text("Cancelar")
+                }
+            }
+        )
     }
 
     Column(
@@ -119,6 +215,25 @@ fun LoginScreen(
             } else {
                 Text("Iniciar sesión")
             }
+        }
+
+        Spacer(
+            modifier = Modifier.height(12.dp)
+        )
+
+        Button(
+            onClick = {
+
+                val clienteGoogle =
+                    viewModel.obtenerGoogleSignInClient()
+
+                lanzadorGoogle.launch(
+                    clienteGoogle.signInIntent
+                )
+            },
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text("Continuar con Google")
         }
 
         Spacer(modifier = Modifier.height(12.dp))

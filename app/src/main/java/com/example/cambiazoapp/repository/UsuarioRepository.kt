@@ -9,12 +9,56 @@ package com.example.cambiazoapp.repository
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.tasks.await
 import com.google.firebase.firestore.FirebaseFirestore
+import android.content.Context
+import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInClient
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 
-
-class UsuarioRepository {
+class UsuarioRepository(
+    private val context: Context
+) {
 
     private val auth = FirebaseAuth.getInstance()
     private val db = FirebaseFirestore.getInstance()
+
+    fun obtenerGoogleSignInClient(): GoogleSignInClient {
+
+        val opciones = GoogleSignInOptions.Builder(
+            GoogleSignInOptions.DEFAULT_SIGN_IN
+        )
+            .requestIdToken(
+                context.getString(
+                    com.example.cambiazoapp.R.string.default_web_client_id
+                )
+            )
+            .requestEmail()
+            .build()
+
+        return GoogleSignIn.getClient(context, opciones)
+    }
+
+    suspend fun iniciarSesionConGoogle(
+        idToken: String
+    ): Result<String> {
+
+        return try {
+
+            val credential = com.google.firebase.auth.GoogleAuthProvider
+                .getCredential(idToken, null)
+
+            val resultado = auth
+                .signInWithCredential(credential)
+                .await()
+
+            val uid = resultado.user?.uid ?: ""
+
+            Result.success(uid)
+
+        } catch (e: Exception) {
+
+            Result.failure(e)
+        }
+    }
 
     suspend fun registrarUsuario(
         correo: String,
@@ -91,7 +135,6 @@ class UsuarioRepository {
             Result.failure(e)
         }
     }
-
     fun cerrarSesion() {
         auth.signOut()
     }

@@ -7,5 +7,6 @@ data class Producto(
     val descripcion: String = "",
     val categoria: String = "",
     val estado: String = "",
-    val imagenUrl: String = ""
+    val imagenUrl: String = "",
+    val activo: Boolean = true
 )

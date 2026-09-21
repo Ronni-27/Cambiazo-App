@@ -13,9 +13,13 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
-class UsuarioViewModel : ViewModel() {
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
 
-    private val repository = UsuarioRepository()
+class UsuarioViewModel(application: Application) : AndroidViewModel(application) {
+
+    private val repository =
+        UsuarioRepository(application.applicationContext)
 
     private val _cargando = MutableStateFlow(false)
     val cargando: StateFlow<Boolean> = _cargando
@@ -99,6 +103,36 @@ class UsuarioViewModel : ViewModel() {
 
             _cargando.value = false
         }
+    }
+
+    fun iniciarSesionConGoogle(
+        idToken: String
+    ) {
+        viewModelScope.launch {
+
+            _cargando.value = true
+            _mensaje.value = ""
+
+            val resultado = repository.iniciarSesionConGoogle(idToken)
+
+            if (resultado.isSuccess) {
+
+                _usuarioAutenticado.value = true
+                _mensaje.value = "Inicio de sesión con Google correcto"
+
+            } else {
+
+                _mensaje.value =
+                    resultado.exceptionOrNull()?.message
+                        ?: "Error al iniciar sesión con Google"
+            }
+
+            _cargando.value = false
+        }
+    }
+
+    fun obtenerGoogleSignInClient(): com.google.android.gms.auth.api.signin.GoogleSignInClient {
+        return repository.obtenerGoogleSignInClient()
     }
 
     fun recuperarContraseña(correo: String) {
