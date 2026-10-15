@@ -45,6 +45,7 @@ import kotlinx.coroutines.launch
 import androidx.compose.material3.Checkbox
 
 import androidx.compose.foundation.layout.imePadding
+import androidx.compose.ui.modifier.modifierLocalOf
 
 fun obtenerFortalezaContraseña(contraseña: String): String {
 
@@ -77,6 +78,7 @@ fun obtenerFortalezaContraseña(contraseña: String): String {
 fun RegistroScreen(
     onIrALogin: () -> Unit,
     onRegistroCorrecto: () -> Unit,
+
     viewModel: UsuarioViewModel = viewModel()
 ) {
 
@@ -90,6 +92,8 @@ fun RegistroScreen(
     var nombre by remember {
         mutableStateOf("")
     }
+
+
     var ciudad by remember {
         mutableStateOf("")
     }
@@ -134,6 +138,7 @@ fun RegistroScreen(
     var errorTerminos by remember {
         mutableStateOf("")
     }
+
 
     val cargando by viewModel.cargando.collectAsState()
     val mensaje by viewModel.mensaje.collectAsState()
@@ -192,6 +197,7 @@ fun RegistroScreen(
                 style = MaterialTheme.typography.bodySmall
             )
         }
+
 
         Spacer(modifier = Modifier.height(12.dp))
 

@@ -85,6 +85,19 @@ fun AppNavigation() {
                 onIrAInventario = {
                     navController.navigate("inventario")
                 }
+                        /*
+                onCerrarSesion = {
+                    Button(
+                        onClick = {
+                            onCerrarSesion()
+                        }
+                    ) {
+                        Text("Cerrar sesión")
+                    }
+                }
+                */
+
+
             )
         }
     }
@@ -93,7 +106,9 @@ fun AppNavigation() {
 @Composable
 fun TextoInicio(
     onIrAPublicar: () -> Unit,
-    onIrAInventario: () -> Unit
+    onIrAInventario: () -> Unit,
+    //=====Practica
+    //onCerrarSesion:() -> Unit
 ) {
     androidx.compose.foundation.layout.Column(
         modifier = androidx.compose.ui.Modifier
